@@ -1,0 +1,43 @@
+cat <<EOF > hdfs_test.sh
+#!/bin/bash
+--------------------------------
+SILMEK ICIN
+hdfs dfs -rm -r /test
+
+
+---------------------------------
+echo "HDFS kurulumu başarılı!" > testfile.txt
+hdfs dfs -mkdir -p /test
+hdfs dfs -put -f testfile.txt /test/
+hdfs dfs -ls /test
+hdfs dfs -cat /test/testfile.txt
+EOF
+
+chmod +x hdfs_test.sh
+./hdfs_test.sh
+
+----------------
+Büyük veri ile yaparsak.
+
+#!/bin/bash
+
+echo "[1] 256MB boyutunda sahte dosya oluşturuluyor..."
+head -c 256M </dev/urandom > bigfile.txt
+echo "[✔] Dosya oluşturuldu: bigfile.txt (256MB)"
+
+echo "[2] HDFS üzerinde /buyuk_test dizini oluşturuluyor..."
+hdfs dfs -mkdir -p /buyuk_test
+echo "[✔] /buyuk_test klasörü oluşturuldu."
+
+echo "[3] Dosya HDFS'e yükleniyor (blok boyutu 64MB)..."
+hdfs dfs -D dfs.blocksize=128m -put bigfile.txt /buyuk_test/
+echo "[✔] Dosya yüklendi."
+
+echo "[4] Blok bilgileri alınıyor..."
+hdfs fsck /büyük_test/bigfile.txt -files -blocks -locations
+
+
+echo "[✔] Test tamamlandı. Web arayüzden detaylı blok dağılımını görmek için:"
+echo "🌐 http://localhost:9870 > Utilities > Browse the file system > /buyuk_test/bigfile.txt"
+
+------------------
