@@ -32,3 +32,12 @@ services:
       - datanode2_data:/hadoop/dfs/data
     networks:
       - hadoop-net
+
+volumes:
+  namenode_data:
+  datanode1_data:
+  datanode2_data:
+
+networks:
+  hadoop-net:
+    driver: bridge
