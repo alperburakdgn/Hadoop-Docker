@@ -1,6 +1,8 @@
 cat <<EOF > hdfs_test.sh
 #!/bin/bash
 --------------------------------
+docker container exec -it namenode bash
+docker container compose up -d
 SILMEK ICIN
 hdfs dfs -rm -r /test
 
