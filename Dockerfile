@@ -14,31 +14,25 @@ RUN wget https://downloads.apache.org/hadoop/common/hadoop-3.3.5/hadoop-3.3.5.ta
 
 # Ortam değişkenleri
 ENV HADOOP_HOME=/opt/hadoop
-ENV PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+ENV PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$JAVA_HOME/bin
 
-# hadoop kullanıcı ve grup oluştur
+# hadoop kullanıcısı oluştur
 RUN groupadd -r hadoop && useradd -ms /bin/bash -g hadoop hadoop
 
-# Hadoop dizinlerine sahiplik ver
-RUN mkdir -p /hadoop/dfs/name /hadoop/dfs/data && \
-    chown -R hadoop:hadoop /hadoop && \
-    chown -R hadoop:hadoop $HADOOP_HOME
+# Gerekli dizinleri oluştur ve sahipliğini ver
+RUN mkdir -p /hadoop/dfs/name /hadoop/dfs/data /run/sshd && \
+    chown -R hadoop:hadoop /opt/hadoop /hadoop /home/hadoop && \
+    chmod 755 /run/sshd
 
-# SSH ayarları (hadoop kullanıcısı için)
-USER hadoop
-RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
-    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
-
-USER root  # SSH servisi root ile başlatılmalı
-
-# Hadoop konfigürasyon dosyalarını kopyala
+# Hadoop konfigürasyon dosyaları ve entrypoint
 COPY config/* $HADOOP_HOME/etc/hadoop/
 COPY config/hadoop-env.sh $HADOOP_HOME/etc/hadoop/
-
-# Entrypoint script
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh && chown hadoop:hadoop /entrypoint.sh
 
-# Varsayılan komut
+# Varsayılan kullanıcıyı hadoop yap
+USER hadoop
+
+# Entrypoint
 CMD ["/entrypoint.sh"]
