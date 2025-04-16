@@ -41,3 +41,4 @@ volumes:
 networks:
   hadoop-net:
     driver: bridge
+    external: true
